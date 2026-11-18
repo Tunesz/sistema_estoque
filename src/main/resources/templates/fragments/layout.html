@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' · Controle de Estoque'">Controle de Estoque</title>
+    <link rel="stylesheet" th:href="@{/css/estoque.css}">
+</head>
+<body>
+
+<aside class="menu" th:fragment="menu(ativo)">
+    <div class="marca"><span class="marca-icone">▦</span> Estoque</div>
+    <nav>
+        <a th:href="@{/}" th:classappend="${ativo == 'painel'} ? 'ativo'">Painel</a>
+        <a th:href="@{/produtos}" th:classappend="${ativo == 'produtos'} ? 'ativo'">
+            Produtos
+            <span class="selo" th:if="${qtdAlertas > 0}" th:text="${qtdAlertas}" title="Produtos abaixo do mínimo">0</span>
+        </a>
+        <a th:href="@{/movimentacoes}" th:classappend="${ativo == 'movimentacoes'} ? 'ativo'">Movimentações</a>
+        <a th:href="@{/categorias}" th:classappend="${ativo == 'categorias'} ? 'ativo'">Categorias</a>
+    </nav>
+    <div class="menu-rodape">
+        <a th:href="@{/relatorios/estoque.csv}">⬇ Exportar estoque (CSV)</a>
+    </div>
+</aside>
+
+<div th:fragment="mensagens">
+    <div class="alerta sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+    <div class="alerta erro" th:if="${erro}" th:text="${erro}"></div>
+</div>
+
+</body>
+</html>

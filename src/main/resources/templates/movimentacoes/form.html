@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nova movimentação')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('movimentacoes')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1>Nova movimentação</h1>
+        </header>
+
+        <form class="formulario" method="post" th:action="@{/movimentacoes/salvar}" th:object="${form}">
+            <div class="alerta erro" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+            </div>
+
+            <div class="campo">
+                <span>Tipo *</span>
+                <div class="opcoes">
+                    <label class="opcao" th:each="t : ${tipos}">
+                        <input type="radio" th:field="*{tipo}" th:value="${t}" th:attr="data-rotulo=${t.rotuloQuantidade}">
+                        <span th:text="${t.descricao}">Entrada</span>
+                    </label>
+                </div>
+                <small class="erro-campo" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></small>
+            </div>
+
+            <div class="grade">
+                <label class="campo largo">
+                    <span>Produto *</span>
+                    <select id="produtoId" th:field="*{produtoId}">
+                        <option value="">Selecione…</option>
+                        <option th:each="p : ${produtos}" th:value="${p.id}"
+                                th:attr="data-saldo=${p.quantidade},data-un=${p.unidade}"
+                                th:text="|${p.sku} · ${p.nome}|"></option>
+                    </select>
+                    <small class="dica" id="saldoInfo"></small>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('produtoId')}" th:errors="*{produtoId}"></small>
+                </label>
+
+                <label class="campo">
+                    <span id="rotuloQtd">Quantidade</span> *
+                    <input type="number" step="1" min="0" th:field="*{quantidade}">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('quantidade')}" th:errors="*{quantidade}"></small>
+                </label>
+
+                <label class="campo largo">
+                    <span>Motivo / observação</span>
+                    <input type="text" th:field="*{motivo}" maxlength="255" placeholder="Ex.: Compra NF 1042, requisição do setor X, perda…">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('motivo')}" th:errors="*{motivo}"></small>
+                </label>
+            </div>
+
+            <div class="acoes">
+                <button class="btn primario" type="submit">Registrar</button>
+                <a class="btn fantasma" th:href="@{/movimentacoes}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+<script th:src="@{/js/movimentacao.js}"></script>
+</body>
+</html>

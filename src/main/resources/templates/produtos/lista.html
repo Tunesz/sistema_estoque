@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Produtos')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('produtos')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1>Produtos</h1>
+            <div class="acoes">
+                <a class="btn primario" th:href="@{/produtos/novo}">Novo produto</a>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="filtros" method="get" th:action="@{/produtos}">
+            <input type="search" name="busca" th:value="${busca}" placeholder="Buscar por nome ou SKU">
+            <select name="categoriaId">
+                <option value="">Todas as categorias</option>
+                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"
+                        th:selected="${categoriaId != null and categoriaId == c.id}"></option>
+            </select>
+            <label class="check"><input type="checkbox" name="baixo" value="true" th:checked="${baixo}"> Só abaixo do mínimo</label>
+            <label class="check"><input type="checkbox" name="inativos" value="true" th:checked="${inativos}"> Incluir inativos</label>
+            <button class="btn" type="submit">Filtrar</button>
+            <a class="btn fantasma" th:href="@{/produtos}">Limpar</a>
+        </form>
+
+        <section class="painel">
+            <p class="vazio" th:if="${#lists.isEmpty(produtos)}">Nenhum produto encontrado.</p>
+            <div class="tabela-wrap" th:unless="${#lists.isEmpty(produtos)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>SKU</th><th>Produto</th><th>Categoria</th>
+                        <th class="num">Saldo</th><th class="num">Mínimo</th>
+                        <th class="num">Custo</th><th class="num">Venda</th><th>Situação</th><th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${produtos}" th:classappend="${!p.ativo} ? 'linha-inativa'">
+                        <td class="nowrap" th:text="${p.sku}">SKU</td>
+                        <td><a th:href="@{/produtos/{id}(id=${p.id})}" th:text="${p.nome}">Produto</a></td>
+                        <td th:text="${p.categoria != null ? p.categoria.nome : '—'}">Categoria</td>
+                        <td class="num" th:text="|${p.quantidade} ${p.unidade}|">0</td>
+                        <td class="num" th:text="${p.estoqueMinimo}">0</td>
+                        <td class="num nowrap" th:text="${'R$ ' + #numbers.formatDecimal(p.precoCusto, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                        <td class="num nowrap" th:text="${'R$ ' + #numbers.formatDecimal(p.precoVenda, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                        <td>
+                            <span class="badge inativo" th:unless="${p.ativo}">Inativo</span>
+                            <span class="badge zerado" th:if="${p.ativo and p.semEstoque}">Sem estoque</span>
+                            <span class="badge baixo" th:if="${p.ativo and !p.semEstoque and p.abaixoDoMinimo}">Baixo</span>
+                            <span class="badge ok" th:if="${p.ativo and !p.abaixoDoMinimo}">OK</span>
+                        </td>
+                        <td class="num nowrap">
+                            <a class="btn pequeno" th:href="@{/produtos/{id}/editar(id=${p.id})}">Editar</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

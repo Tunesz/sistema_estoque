@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Categorias')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('categorias')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1>Categorias</h1>
+            <div class="acoes">
+                <a class="btn primario" th:href="@{/categorias/nova}">Nova categoria</a>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <section class="painel">
+            <p class="vazio" th:if="${#lists.isEmpty(categorias)}">Nenhuma categoria cadastrada.</p>
+            <div class="tabela-wrap" th:unless="${#lists.isEmpty(categorias)}">
+                <table>
+                    <thead>
+                    <tr><th>Nome</th><th>Descrição</th><th class="num">Produtos</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${categorias}">
+                        <td>
+                            <a th:href="@{/produtos(categoriaId=${c.id})}" th:text="${c.nome}">Categoria</a>
+                        </td>
+                        <td th:text="${c.descricao != null ? c.descricao : '—'}">—</td>
+                        <td class="num" th:text="${qtdProdutos.get(c.id)}">0</td>
+                        <td class="num nowrap">
+                            <a class="btn pequeno" th:href="@{/categorias/{id}/editar(id=${c.id})}">Editar</a>
+                            <form class="inline" method="post" th:action="@{/categorias/{id}/excluir(id=${c.id})}"
+                                  onsubmit="return confirm('Excluir esta categoria?')">
+                                <button class="btn pequeno perigo" type="submit">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Movimentações')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('movimentacoes')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1>Movimentações</h1>
+            <div class="acoes">
+                <a class="btn primario" th:href="@{/movimentacoes/nova}">Nova movimentação</a>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="filtros" method="get" th:action="@{/movimentacoes}">
+            <select name="produtoId" onchange="this.form.submit()">
+                <option value="">Todos os produtos</option>
+                <option th:each="p : ${produtos}" th:value="${p.id}" th:text="|${p.sku} · ${p.nome}|"
+                        th:selected="${produtoId != null and produtoId == p.id}"></option>
+            </select>
+            <noscript><button class="btn" type="submit">Filtrar</button></noscript>
+            <span class="dica">Mostrando as 200 mais recentes.</span>
+        </form>
+
+        <section class="painel">
+            <p class="vazio" th:if="${#lists.isEmpty(movimentacoes)}">Nenhuma movimentação encontrada.</p>
+            <div class="tabela-wrap" th:unless="${#lists.isEmpty(movimentacoes)}">
+                <table>
+                    <thead>
+                    <tr><th>Data</th><th>Produto</th><th>Tipo</th><th class="num">Variação</th><th class="num">Saldo anterior</th><th class="num">Saldo final</th><th>Motivo</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="m : ${movimentacoes}">
+                        <td class="nowrap" th:text="${#temporals.format(m.dataHora, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</td>
+                        <td>
+                            <a th:href="@{/produtos/{id}(id=${m.produto.id})}" th:text="${m.produto.nome}">Produto</a>
+                            <small class="sub" th:text="${m.produto.sku}">SKU</small>
+                        </td>
+                        <td><span class="badge" th:classappend="${m.tipo.css}" th:text="${m.tipo.descricao}">Entrada</span></td>
+                        <td class="num" th:classappend="${m.variacao > 0} ? 'positivo' : (${m.variacao lt 0} ? 'negativo' : '')"
+                            th:text="${m.variacao > 0 ? '+' + m.variacao : m.variacao}">0</td>
+                        <td class="num" th:text="${m.saldoAnterior}">0</td>
+                        <td class="num" th:text="${m.saldoPosterior}">0</td>
+                        <td th:text="${m.motivo != null ? m.motivo : '—'}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

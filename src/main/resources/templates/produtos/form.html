@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${form.novo} ? 'Novo produto' : 'Editar produto')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('produtos')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1 th:text="${form.novo} ? 'Novo produto' : 'Editar produto'">Produto</h1>
+        </header>
+
+        <form class="formulario" method="post" th:action="@{/produtos/salvar}" th:object="${form}">
+            <div class="alerta erro" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+            </div>
+
+            <input type="hidden" th:field="*{id}">
+
+            <div class="grade">
+                <label class="campo">
+                    <span>SKU (código) *</span>
+                    <input type="text" th:field="*{sku}" maxlength="40" autofocus>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('sku')}" th:errors="*{sku}"></small>
+                </label>
+
+                <label class="campo largo">
+                    <span>Nome *</span>
+                    <input type="text" th:field="*{nome}" maxlength="120">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></small>
+                </label>
+
+                <label class="campo">
+                    <span>Categoria</span>
+                    <select th:field="*{categoriaId}">
+                        <option value="">— Sem categoria —</option>
+                        <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"></option>
+                    </select>
+                </label>
+
+                <label class="campo">
+                    <span>Unidade *</span>
+                    <input type="text" th:field="*{unidade}" maxlength="10" placeholder="UN, KG, CX…">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('unidade')}" th:errors="*{unidade}"></small>
+                </label>
+
+                <label class="campo">
+                    <span>Preço de custo (R$) *</span>
+                    <input type="number" step="0.01" min="0" th:field="*{precoCusto}">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('precoCusto')}" th:errors="*{precoCusto}"></small>
+                </label>
+
+                <label class="campo">
+                    <span>Preço de venda (R$) *</span>
+                    <input type="number" step="0.01" min="0" th:field="*{precoVenda}">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('precoVenda')}" th:errors="*{precoVenda}"></small>
+                </label>
+
+                <label class="campo">
+                    <span>Estoque mínimo *</span>
+                    <input type="number" step="1" min="0" th:field="*{estoqueMinimo}">
+                    <small class="dica">Abaixo (ou igual) a esse valor o produto entra em alerta.</small>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('estoqueMinimo')}" th:errors="*{estoqueMinimo}"></small>
+                </label>
+
+                <label class="campo" th:if="${form.novo}">
+                    <span>Quantidade inicial</span>
+                    <input type="number" step="1" min="0" th:field="*{quantidadeInicial}">
+                    <small class="dica">Gera uma entrada “Estoque inicial”.</small>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('quantidadeInicial')}" th:errors="*{quantidadeInicial}"></small>
+                </label>
+
+                <label class="campo largo">
+                    <span>Descrição</span>
+                    <textarea rows="3" th:field="*{descricao}" maxlength="500"></textarea>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></small>
+                </label>
+
+                <label class="check largo">
+                    <input type="checkbox" th:field="*{ativo}"> Produto ativo
+                </label>
+            </div>
+
+            <p class="dica" th:unless="${form.novo}">
+                O saldo só muda por movimentações (entrada, saída ou ajuste), para manter o histórico confiável.
+            </p>
+
+            <div class="acoes">
+                <button class="btn primario" type="submit">Salvar</button>
+                <a class="btn fantasma" th:href="@{/produtos}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>

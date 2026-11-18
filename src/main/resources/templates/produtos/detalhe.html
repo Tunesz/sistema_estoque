@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${produto.nome})}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('produtos')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <div>
+                <h1 th:text="${produto.nome}">Produto</h1>
+                <span class="sub" th:text="|SKU ${produto.sku}|">SKU</span>
+                <span class="badge inativo" th:unless="${produto.ativo}">Inativo</span>
+            </div>
+            <div class="acoes">
+                <a class="btn" th:href="@{/produtos/{id}/editar(id=${produto.id})}">Editar</a>
+                <form class="inline" method="post" th:action="@{/produtos/{id}/alternar(id=${produto.id})}">
+                    <button class="btn" type="submit" th:text="${produto.ativo} ? 'Inativar' : 'Ativar'">Inativar</button>
+                </form>
+                <form class="inline" method="post" th:action="@{/produtos/{id}/excluir(id=${produto.id})}"
+                      onsubmit="return confirm('Excluir este produto? Só é possível se não houver movimentações.')">
+                    <button class="btn perigo" type="submit">Excluir</button>
+                </form>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <section class="cards">
+            <div class="card" th:classappend="${produto.abaixoDoMinimo} ? 'card-alerta'">
+                <span class="card-rotulo">Saldo atual</span>
+                <strong class="card-valor" th:text="|${produto.quantidade} ${produto.unidade}|">0</strong>
+                <small class="card-nota" th:text="|Mínimo: ${produto.estoqueMinimo}|"></small>
+            </div>
+            <div class="card">
+                <span class="card-rotulo">Valor em estoque</span>
+                <strong class="card-valor" th:text="${'R$ ' + #numbers.formatDecimal(produto.valorEmEstoque, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</strong>
+                <small class="card-nota" th:text="${'Custo unit.: R$ ' + #numbers.formatDecimal(produto.precoCusto, 1, 'POINT', 2, 'COMMA')}"></small>
+            </div>
+            <div class="card">
+                <span class="card-rotulo">Preço de venda</span>
+                <strong class="card-valor" th:text="${'R$ ' + #numbers.formatDecimal(produto.precoVenda, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</strong>
+            </div>
+            <div class="card">
+                <span class="card-rotulo">Categoria</span>
+                <strong class="card-valor pequeno" th:text="${produto.categoria != null ? produto.categoria.nome : '—'}">—</strong>
+            </div>
+        </section>
+
+        <p class="descricao" th:if="${produto.descricao}" th:text="${produto.descricao}"></p>
+
+        <section class="painel" th:if="${produto.ativo}">
+            <h2>Movimentar estoque</h2>
+            <div class="acoes">
+                <a class="btn entrada" th:href="@{/movimentacoes/nova(produtoId=${produto.id},tipo='ENTRADA')}">+ Entrada</a>
+                <a class="btn saida" th:href="@{/movimentacoes/nova(produtoId=${produto.id},tipo='SAIDA')}">− Saída</a>
+                <a class="btn" th:href="@{/movimentacoes/nova(produtoId=${produto.id},tipo='AJUSTE')}">Ajuste de inventário</a>
+            </div>
+        </section>
+
+        <section class="painel">
+            <h2>Histórico (últimas 30)</h2>
+            <p class="vazio" th:if="${#lists.isEmpty(movimentacoes)}">Sem movimentações para este produto.</p>
+            <div class="tabela-wrap" th:unless="${#lists.isEmpty(movimentacoes)}">
+                <table>
+                    <thead>
+                    <tr><th>Data</th><th>Tipo</th><th class="num">Variação</th><th class="num">Saldo anterior</th><th class="num">Saldo final</th><th>Motivo</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="m : ${movimentacoes}">
+                        <td class="nowrap" th:text="${#temporals.format(m.dataHora, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</td>
+                        <td><span class="badge" th:classappend="${m.tipo.css}" th:text="${m.tipo.descricao}">Entrada</span></td>
+                        <td class="num" th:classappend="${m.variacao > 0} ? 'positivo' : (${m.variacao lt 0} ? 'negativo' : '')"
+                            th:text="${m.variacao > 0 ? '+' + m.variacao : m.variacao}">0</td>
+                        <td class="num" th:text="${m.saldoAnterior}">0</td>
+                        <td class="num" th:text="${m.saldoPosterior}">0</td>
+                        <td th:text="${m.motivo != null ? m.motivo : '—'}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

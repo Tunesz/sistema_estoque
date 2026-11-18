@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Categoria')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/layout :: menu('categorias')}"></aside>
+
+    <main class="conteudo">
+        <header class="topo">
+            <h1 th:text="${categoria.id == null} ? 'Nova categoria' : 'Editar categoria'">Categoria</h1>
+        </header>
+
+        <form class="formulario" method="post" th:action="@{/categorias/salvar}" th:object="${categoria}">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="grade">
+                <label class="campo largo">
+                    <span>Nome *</span>
+                    <input type="text" th:field="*{nome}" maxlength="80" autofocus>
+                    <small class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></small>
+                </label>
+
+                <label class="campo largo">
+                    <span>Descrição</span>
+                    <input type="text" th:field="*{descricao}" maxlength="255">
+                    <small class="erro-campo" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></small>
+                </label>
+            </div>
+
+            <div class="acoes">
+                <button class="btn primario" type="submit">Salvar</button>
+                <a class="btn fantasma" th:href="@{/categorias}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>
